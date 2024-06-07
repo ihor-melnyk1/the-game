@@ -6,10 +6,10 @@ function parseInputFile(filePath) {
   const lines = fileContent.split('\n').filter((str) => str.trim());
 
   const testCases = [];
-
-  for (let i = 1; i < lines.length; i += 19) {
+  const gameLength = 19;
+  for (let i = 1; i < lines.length; i += gameLength) {
     // Extract board data for each test case
-    const boardData = lines.slice(i, i + 19).map((line) => line.split(' ').map(Number));
+    const boardData = lines.slice(i, i + gameLength).map((line) => line.split(' ').map(Number));
     testCases.push(boardData);
   }
   return testCases;

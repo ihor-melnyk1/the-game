@@ -1,3 +1,5 @@
+const matchesToWin = 5;
+
 function checkHorizontalWins(board) {
   const size = board.length;
 
@@ -18,10 +20,10 @@ function checkHorizontalWins(board) {
         countWhite = 0;
       }
 
-      if (countBlack === 5) {
+      if (countBlack === matchesToWin) {
         winner = 1;
         return { winner, row: i + 1, col: j - 4 + 1 }; // j-4 for leftmost stone
-      } else if (countWhite === 5) {
+      } else if (countWhite === matchesToWin) {
         winner = 2;
         return { winner, row: i + 1, col: j - 4 + 1 };
       }
@@ -51,10 +53,10 @@ function checkVerticalWins(board) {
         countWhite = 0;
       }
 
-      if (countBlack === 5) {
+      if (countBlack === matchesToWin) {
         winner = 1;
         return { winner, row: i - 4 + 1, col: j + 1 }; // i-4 for topmost stone
-      } else if (countWhite === 5) {
+      } else if (countWhite === matchesToWin) {
         winner = 2;
         return { winner, row: i - 4 + 1, col: j + 1 };
       }
@@ -64,32 +66,49 @@ function checkVerticalWins(board) {
   return 0; // No vertical winner found
 }
 
+const diagoanalCondition = (i, j, k, state, board, target) => {
+  const colIndex = target === 'bottom' ? (i + k) : (i - k);
+ 
+  
+  if (board[colIndex][j + k] === 1) {
+    state.countBlack++;
+    state.countWhite = 0;
+  } else if (board[colIndex][j + k] === 2) {
+    state.countWhite++;
+    state.countBlack = 0;
+  } else {
+    state.countBlack = 0;
+    state.countWhite = 0;
+  }
+
+  const topLeftIndex = target === 'bottom' ?  (k - 4) : (4 - k);
+  if (state.countBlack === matchesToWin) {
+    state.winner = 1;
+    return { winner: state.winner, row: i + topLeftIndex + 1, col: j + k - 4 + 1 }; // top-left stone
+  } else if (state.countWhite === matchesToWin) {
+    state.winner = 2;
+    return { winner: state.winner, row: i + topLeftIndex + 1, col: j + k - 4 + 1 }; // top-left stone
+  }
+  else return 0;
+
+}
+
 function checkDiagonalWins(board) {
   const size = board.length;
   // Check for diagonal wins from top left to bottom right
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      let countBlack = 0;
-      let countWhite = 0;
-      let winner = 0;
+      const state = {
+        countBlack: 0,
+        countWhite: 0,
+        winner: 0,
+      };
       for (let k = 0; k < Math.min(size - i, size - j); k++) {
-        if (board[i + k][j + k] === 1) {
-          countBlack++;
-          countWhite = 0;
-        } else if (board[i + k][j + k] === 2) {
-          countWhite++;
-          countBlack = 0;
+        const conditionRes = diagoanalCondition(i,j,k,state,board, 'bottom');
+        if(conditionRes === 0) {
+          continue;
         } else {
-          countBlack = 0;
-          countWhite = 0;
-        }
-
-        if (countBlack === 5) {
-          winner = 1;
-          return { winner, row: i + k - 4 + 1, col: j + k - 4 + 1 }; // top-left stone
-        } else if (countWhite === 5) {
-          winner = 2;
-          return { winner, row: i + k - 4 + 1, col: j + k - 4 + 1 }; // top-left stone
+          return conditionRes;
         }
       }
     }
@@ -98,28 +117,17 @@ function checkDiagonalWins(board) {
   // Check for diagonal wins from bottom left to top right
   for (let i = size - 1; i >= 0; i--) {
     for (let j = 0; j < size; j++) {
-      let countBlack = 0;
-      let countWhite = 0;
-      let winner = 0;
-
+      const state = {
+        countBlack: 0,
+        countWhite: 0,
+        winner: 0,
+      };
       for (let k = 0; k <= Math.min(i, j); k++) {
-        if (board[i - k][j + k] === 1) {
-          countBlack++;
-          countWhite = 0;
-        } else if (board[i - k][j + k] === 2) {
-          countWhite++;
-          countBlack = 0;
+        const conditionRes = diagoanalCondition(i,j,k,state,board, 'top');
+        if(conditionRes === 0) {
+          continue;
         } else {
-          countBlack = 0;
-          countWhite = 0;
-        }
-
-        if (countBlack === 5) {
-          winner = 1;
-          return { winner, row: i - k + 4 + 1, col: j + k - 4 + 1 }; // bottom-left stone
-        } else if (countWhite === 5) {
-          winner = 2;
-          return { winner, row: i - k + 4 + 1, col: j + k - 4 + 1 }; // bottom-left stone
+          return conditionRes;
         }
       }
     }
