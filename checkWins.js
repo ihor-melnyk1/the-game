@@ -1,4 +1,5 @@
 const matchesToWin = 5;
+const leftMostIndex = matchesToWin - 1;
 
 function checkHorizontalWins(board) {
   const size = board.length;
@@ -20,12 +21,13 @@ function checkHorizontalWins(board) {
         countWhite = 0;
       }
 
+      const winnerObj = { winner, row: i + 1, col: j - leftMostIndex + 1 }
       if (countBlack === matchesToWin) {
         winner = 1;
-        return { winner, row: i + 1, col: j - 4 + 1 }; // j-4 for leftmost stone
+        return winnerObj;
       } else if (countWhite === matchesToWin) {
         winner = 2;
-        return { winner, row: i + 1, col: j - 4 + 1 };
+        return winnerObj
       }
     }
   }
@@ -53,12 +55,13 @@ function checkVerticalWins(board) {
         countWhite = 0;
       }
 
+      const winnerObj = { winner, row: i - leftMostIndex + 1, col: j + 1 }
       if (countBlack === matchesToWin) {
         winner = 1;
-        return { winner, row: i - 4 + 1, col: j + 1 }; // i-4 for topmost stone
+        return winnerObj; // i-leftMostIndex for topmost stone
       } else if (countWhite === matchesToWin) {
         winner = 2;
-        return { winner, row: i - 4 + 1, col: j + 1 };
+        return winnerObj;
       }
     }
   }
@@ -81,13 +84,14 @@ const diagoanalCondition = (i, j, k, state, board, target) => {
     state.countWhite = 0;
   }
 
-  const topLeftIndex = target === 'bottom' ?  (k - 4) : (4 - k);
+  const topLeftIndex = target === 'bottom' ?  (k - leftMostIndex) : (leftMostIndex - k);
+  const winnerObj  = { winner: state.winner, row: i + topLeftIndex + 1, col: j + k - leftMostIndex + 1 }
   if (state.countBlack === matchesToWin) {
     state.winner = 1;
-    return { winner: state.winner, row: i + topLeftIndex + 1, col: j + k - 4 + 1 }; // top-left stone
+    return winnerObj; // top-left stone
   } else if (state.countWhite === matchesToWin) {
     state.winner = 2;
-    return { winner: state.winner, row: i + topLeftIndex + 1, col: j + k - 4 + 1 }; // top-left stone
+    return winnerObj; // top-left stone
   }
   else return 0;
 
